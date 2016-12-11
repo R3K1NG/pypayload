@@ -98,6 +98,8 @@ print "LHOST => " + LHOST
 op2 = raw_input(BB + "[>] What is your LPORT? (enter for 4444 default) " + W )
 if op2 == "":
     LPORT = "4444"
+else:
+	LPORT = op2
 print "LPORT => " + LPORT
 
 
@@ -130,7 +132,7 @@ if op7 == "y":
 elif op7 == "n":
     ops = " "
 
-op8 = raw_input(BB + "[>] What is the name of the payload? ")
+op8 = raw_input(BB + "[>] What is the name of the payload? " + W )
 
 if "dllinject" in payload:
     dllpath = raw_input("[>] Additional option required: Specify path to reflective DLL script: ")
