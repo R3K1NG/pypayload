@@ -1,5 +1,5 @@
-# PyPayload
-Automatic Metasploit Payload Generator
+# pypayload
+Simple Automatic Metasploit Payload Generator
 
 ## Introduction
 
@@ -16,14 +16,14 @@ __Metasploit__ is a great suite for penetration testing. However, I tend to find
 
 Get the repository off of Github by cloning it:
 
-    git clone https://github.com/ex0dus-0x/pypayload
+    $ git clone https://github.com/ex0dus-0x/pypayload
 
 Change into the pypayload directory:
 
-    cd /path/to/pypayload
+    $ cd /path/to/pypayload
 
 Execute with python:
 
-    python pypayload.py
+    $ python pypayload.py
 
 The generated payload will be in the same directory as pypayload.

