@@ -16,7 +16,7 @@ __Metasploit__ is a great suite for penetration testing. However, I tend to find
 
 Get the repository off of Github by cloning it:
 
-    $ git clone https://github.com/ex0dus-0x/pypayload
+    $ git clone https://github.com/R3K1NG/pypayload
 
 Change into the pypayload directory:
 
